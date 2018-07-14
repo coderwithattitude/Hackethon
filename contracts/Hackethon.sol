@@ -11,6 +11,8 @@ contract Hackethon {
         uint64 startTime;
         uint64 endTime;
         uint256 noJudges;
+        uint256 noParticipants;
+        address[] participants;
         address[] judges;
     }
 
@@ -30,6 +32,13 @@ contract Hackethon {
 
 
 
+    }
+
+    function joinHackathon(uint256 _hackathonID) public returns(bool joined){
+        uint256 participantsID = hackathons[_hackathonID].participants.length++;
+        require(participantsID < hackathons[_hackathonID].noParticipants, "number of participants exceeded");
+        hackathons[_hackathonID].participants[participantsID] = msg.sender;
+        joined = true;
     }
 
 }
