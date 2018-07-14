@@ -14,6 +14,7 @@ contract Hackethon {
         uint256 noParticipants;
         address[] participants;
         address[] judges;
+        bool ended;
     }
 
     HackathonStruct[] hackathons;
@@ -28,17 +29,34 @@ contract Hackethon {
         hackathon.startTime = uint64(now);
         hackathon.endTime = uint64(_endTime);
         hackathon.noJudges = _noJudges;
+        hackathon.ended = false;
         if(_judges.length == _noJudges) hackathon.judges = _judges;
 
 
 
     }
 
-    function joinHackathon(uint256 _hackathonID) public returns(bool joined){
+    function joinHackathon(uint256 _hackathonID) public hackathonEnded(_hackathonID) returns(bool joined){
         uint256 participantsID = hackathons[_hackathonID].participants.length++;
         require(participantsID < hackathons[_hackathonID].noParticipants, "number of participants exceeded");
         hackathons[_hackathonID].participants[participantsID] = msg.sender;
         joined = true;
     }
+
+    function endHackathon(uint256 _hackathonID) public onlyHackathonCreator(_hackathonID) hackathonEnded(_hackathonID) returns(bool _ended){
+        _ended = hackathons[_hackathonID].ended = true;
+    }
+
+    modifier hackathonEnded(uint256 _hackathonID) {
+        require(hackathons[_hackathonID].ended, "hackathon has ended");
+        _;
+    }
+
+    modifier onlyHackathonCreator(uint256 hackathonID) {
+        require(msg.sender == hackathons[hackathonID].creator);
+        _;
+    }
+
+    
 
 }
