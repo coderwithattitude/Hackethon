@@ -20,8 +20,6 @@ contract Hackethon {
 
     HackathonStruct[] hackathons;
 
-    //mapping (address => HackathonStruct) hackathons;
-    //mapping (address => address[]) judges;
 
     function newHackthon(uint _endTime, uint256 _noJudges, address[] _judges) public returns(uint256 hackathonId){
         hackathonId = hackathons.length++;
@@ -72,6 +70,21 @@ contract Hackethon {
         hackathons[_hackathonID].judges[oldJudgeID] = newJudge;
     }
 
+    function getHackathonInfo(uint256 _hackathonID) 
+        public
+        view 
+        returns(
+        address _creator, 
+        uint64 _startTime,
+        uint64 _endTIme,
+        bool _ended
+        ){
+        _creator = hackathons[_hackathonID].creator;
+        _startTime = hackathons[_hackathonID].startTime;
+        _endTIme = hackathons[_hackathonID].endTime;
+        _ended = hackathons[_hackathonID].ended;
+    }
+
     modifier hackathonEnded(uint256 _hackathonID) {
         require(hackathons[_hackathonID].ended, "hackathon has ended");
         _;
@@ -88,7 +101,5 @@ contract Hackethon {
         }
         _;
     }
-
-    
 
 }
