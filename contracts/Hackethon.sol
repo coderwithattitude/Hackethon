@@ -21,7 +21,12 @@ contract Hackethon {
     HackathonStruct[] hackathons;
 
 
-    function newHackthon(uint _endTime, uint256 _noJudges, address[] _judges) public returns(uint256 hackathonId){
+    function newHackthon(
+        uint _endTime, 
+        uint256 _noJudges, 
+        address[] _judges) 
+        public
+        returns(uint256 hackathonId){
         hackathonId = hackathons.length++;
         HackathonStruct storage hackathon = hackathons[hackathonId];
         hackathon.creator = msg.sender;
@@ -54,7 +59,9 @@ contract Hackethon {
         _ended = hackathons[_hackathonID].ended = true;
     }
 
-    function submitEntry(uint256 _hackathonID, bytes32 _submissionUrl) 
+    function submitEntry(
+        uint256 _hackathonID, 
+        bytes32 _submissionUrl) 
         public 
         hasJoined(_hackathonID) 
         hackathonEnded(_hackathonID) 
@@ -83,6 +90,24 @@ contract Hackethon {
         _startTime = hackathons[_hackathonID].startTime;
         _endTIme = hackathons[_hackathonID].endTime;
         _ended = hackathons[_hackathonID].ended;
+    }
+
+    function getJudges(uint256 _hackathonID) public view returns(address[] _judges){
+        require(hackathons[_hackathonID].judges.length != 0);
+        _judges = hackathons[_hackathonID].judges;
+    }
+
+    function getParticipants(uint256 _hackathonID) public view returns(address[] _participants){
+       require(hackathons[_hackathonID].participants.length != 0); 
+       _participants = hackathons[_hackathonID].participants; 
+    }
+
+    function vote() public {
+
+    }
+
+    function getWinner() public {
+
     }
 
     modifier hackathonEnded(uint256 _hackathonID) {
