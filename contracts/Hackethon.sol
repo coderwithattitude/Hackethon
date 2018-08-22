@@ -11,15 +11,14 @@ contract Hackethon {
         uint64 startTime;
         uint64 endTime;
         uint256 noJudges;
-        uint256 noParticipants;
+        uint256 maxParticipants;
         address[] participants;
-        mapping(address => bytes32) submissions;
         address[] judges;
+        mapping(address => bytes32) submissions;
         bool ended;
     }
 
     HackathonStruct[] hackathons;
-
 
     function newHackthon(
         uint _endTime, 
@@ -46,7 +45,7 @@ contract Hackethon {
         hasJoined(_hackathonID) 
         returns(bool joined){
         uint256 participantsID = hackathons[_hackathonID].participants.length++;
-        require(participantsID < hackathons[_hackathonID].noParticipants, "number of participants exceeded");
+        require(participantsID < hackathons[_hackathonID].maxParticipants, "number of participants exceeded");
         hackathons[_hackathonID].participants[participantsID] = msg.sender;
         joined = true;
     }
@@ -98,16 +97,24 @@ contract Hackethon {
     }
 
     function getParticipants(uint256 _hackathonID) public view returns(address[] _participants){
-       require(hackathons[_hackathonID].participants.length != 0); 
-       _participants = hackathons[_hackathonID].participants; 
+        require(hackathons[_hackathonID].participants.length != 0); 
+        _participants = hackathons[_hackathonID].participants; 
     }
-
-    function vote() public {
-
+    //
+    function vote(uint256 _hackathonID) public {
+        require(isJudge(msg.sender, _hackathonID));
     }
 
     function getWinner() public {
 
+    }
+
+    function isJudge(address _judge, uint256 _hackathonID) internal returns (bool) {
+        for(uint i = 0; i <= hackathons[_hackathonID].judges.length; i++) {
+            if(_judge == hackathons[_hackathonID].judges[i]) return true;
+            break;
+        }
+        return false;
     }
 
     modifier hackathonEnded(uint256 _hackathonID) {
@@ -121,7 +128,7 @@ contract Hackethon {
     }
 
     modifier hasJoined(uint256 _hackathonID) {
-        for(uint i = 0; i < hackathons[_hackathonID].participants.length; i++) {
+        for(var i = 0; i < hackathons[_hackathonID].participants.length; i++) {
             require(hackathons[_hackathonID].participants[i] == msg.sender, "already joined hackathon");
         }
         _;
