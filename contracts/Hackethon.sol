@@ -14,8 +14,14 @@ contract Hackethon {
         uint256 maxParticipants;
         address[] participants;
         address[] judges;
-        mapping(address => bytes32) submissions;
+        mapping(address => bool) voted;
+        mapping(address => Submission) submissions;
         bool ended;
+    }
+
+    struct Submission {
+        bytes32 submission;
+        uint vote;
     }
 
     HackathonStruct[] hackathons;
@@ -65,7 +71,7 @@ contract Hackethon {
         hasJoined(_hackathonID) 
         hackathonEnded(_hackathonID) 
         returns (bool submitted) {
-        hackathons[_hackathonID].submissions[msg.sender] = _submissionUrl;
+        hackathons[_hackathonID].submissions[msg.sender].submission = _submissionUrl;
         submitted = true;
     }
 
@@ -101,20 +107,24 @@ contract Hackethon {
         _participants = hackathons[_hackathonID].participants; 
     }
     //
-    function vote(uint256 _hackathonID) public {
-        require(isJudge(msg.sender, _hackathonID));
+    function vote(uint256 _hackathonID, address participant) public {
+        uint judgeID = getJudgeID(msg.sender, _hackathonID);
+        require(judgeID != 0);
+        require(!hackathons[_hackathonID].voted[msg.sender]);
+        hackathons[_hackathonID].submissions[participant].vote += 1;
+        hackathons[_hackathonID].voted[msg.sender] = true;
     }
 
     function getWinner() public {
 
     }
 
-    function isJudge(address _judge, uint256 _hackathonID) internal returns (bool) {
+    function getJudgeID(address _judge, uint256 _hackathonID) internal returns (uint) {
         for(uint i = 0; i <= hackathons[_hackathonID].judges.length; i++) {
-            if(_judge == hackathons[_hackathonID].judges[i]) return true;
+            if(_judge == hackathons[_hackathonID].judges[i]) return i;
             break;
         }
-        return false;
+        return 0;
     }
 
     modifier hackathonEnded(uint256 _hackathonID) {
