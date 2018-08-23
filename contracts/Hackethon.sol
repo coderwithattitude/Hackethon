@@ -6,11 +6,11 @@ contract Hackethon {
     using SafeMath for uint256;
     using SafeMath for uint64;
 
-    struct HackathonStruct {
+    struct Hackathon {
+        string name;
         address creator;
         uint64 startTime;
         uint64 endTime;
-        uint256 noJudges;
         uint256 maxParticipants;
         address[] participants;
         address[] judges;
@@ -24,23 +24,28 @@ contract Hackethon {
         uint vote;
     }
 
-    HackathonStruct[] hackathons;
+    Hackathon[] hackathons;
 
     function newHackthon(
+        string _name,
         uint _endTime, 
-        uint256 _noJudges, 
-        address[] _judges) 
+        address[] _judges,
+        address[] _participants,
+        uint _maxParticipants) 
         public
         returns(uint256 hackathonId){
-        hackathonId = hackathons.length++;
-        HackathonStruct storage hackathon = hackathons[hackathonId];
-        hackathon.creator = msg.sender;
-        hackathon.startTime = uint64(now);
-        hackathon.endTime = uint64(_endTime);
-        hackathon.noJudges = _noJudges;
-        hackathon.ended = false;
-        if(_judges.length == _noJudges) hackathon.judges = _judges;
-
+            
+        hackathons.push(Hackathon({
+            name : _name,
+            creator : msg.sender,
+            startTime : uint64(now),
+            endTime : uint64(_endTime),
+            maxParticipants : _maxParticipants,
+            judges : _judges,
+            ended : false,
+            participants : _participants
+        }));
+        hackathonId = hackathons.length - 1;
 
 
     }
@@ -119,7 +124,7 @@ contract Hackethon {
         
     }
 
-    function getJudgeID(address _judge, uint256 _hackathonID) internal returns (uint) {
+    function getJudgeID(address _judge, uint256 _hackathonID) internal view returns (uint) {
         for(uint i = 0; i <= hackathons[_hackathonID].judges.length; i++) {
             if(_judge == hackathons[_hackathonID].judges[i]) return i;
             break;
