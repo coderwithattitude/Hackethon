@@ -115,8 +115,8 @@ contract Hackethon {
         hackathons[_hackathonID].voted[msg.sender] = true;
     }
 
-    function getWinner() public {
-
+    function getWinner(uint _hackathonID) public checkVotes(_hackathonID){
+        
     }
 
     function getJudgeID(address _judge, uint256 _hackathonID) internal returns (uint) {
@@ -138,8 +138,16 @@ contract Hackethon {
     }
 
     modifier hasJoined(uint256 _hackathonID) {
-        for(var i = 0; i < hackathons[_hackathonID].participants.length; i++) {
+        for(uint i = 0;i < hackathons[_hackathonID].participants.length;i++) {
             require(hackathons[_hackathonID].participants[i] == msg.sender, "already joined hackathon");
+        }
+        _;
+    }
+
+    modifier checkVotes(uint _hackathonID) {
+        for (uint i = 0; i <= hackathons[_hackathonID].judges.length;i++) {
+            address judgeAddress = hackathons[_hackathonID].judges[i];
+            if (!hackathons[_hackathonID].voted[judgeAddress])  return;
         }
         _;
     }
